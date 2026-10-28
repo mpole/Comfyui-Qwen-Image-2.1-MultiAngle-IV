@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AnyAngle Studio · IV</title><link rel="stylesheet" href="./style.css?v=20261004g7"></head>
+<body>
+<header class="topbar">
+  <div class="brand"><img src="../icons/aperture.svg" alt=""><strong>ANYANGLE</strong><span>STUDIO</span><small>IV</small></div>
+  <span class="product-label">Camera Workbench</span>
+  <div class="top-actions"><button id="extract-coarse" class="accent-button">Reconstruct 3D from image</button><button id="undo" class="icon-button" title="Undo Ctrl+Z" aria-label="Undo"><img src="../icons/arrow-back-up.svg" alt=""></button><button id="redo" class="icon-button" title="Redo Ctrl+Shift+Z" aria-label="Redo"><img src="../icons/arrow-forward-up.svg" alt=""></button><button id="cancel" class="quiet">Cancel</button><button id="apply" class="primary" disabled><img src="../icons/check.svg" alt="">Apply to node</button></div>
+</header>
+<main class="workspace" id="workspace" inert>
+  <aside class="left-panel">
+    <section class="reference-section">
+      <div class="section-heading"><h2>Source image <small>· image_1</small></h2><button id="reference-button" class="icon-button" title="Import source image" aria-label="Import source image"><img src="../icons/upload.svg" alt=""></button></div>
+      <button id="reference-drop" class="reference-drop" aria-label="Choose source image"><img id="reference" alt="Full source image" hidden><span id="reference-empty"><img src="../icons/photo.svg" alt=""><strong>Import source image</strong><small>3D reconstruction / image_1</small></span></button>
+      <p id="reference-origin" class="hint">Connect an IMAGE to the node's input, or upload an image here.</p>
+      <button id="read-reference" hidden><img src="../icons/refresh.svg" alt="">Read upstream image</button>
+      <button id="reconstruct" class="primary reconstruct-button" disabled>Reconstruct 3D from image</button>
+      <p id="reconstruction-state" class="hint" hidden>Reconstruct the subject from the source image, then adjust the camera.</p>
+      <div class="source-buttons" style="grid-template-columns:1fr"><button id="import-glb"><img src="../icons/cube.svg" alt="">Import GLB</button><button id="bake-glb" disabled title="Extract a mesh from the reconstruction; needed for Tilt and Edit scene"><img src="../icons/cube.svg" alt="">Bake GLB</button><button id="export-glb" disabled><img src="../icons/download.svg" alt="">Export GLB</button><button id="export-splat" disabled><img src="../icons/download.svg" alt="">Export splat (.ply)</button></div>
+      <p class="asset-label" id="asset-label">Loading scene</p>
+    </section>
+    <details class="panel-block" id="reconstruction-model-panel"><summary>Reconstruction models <span class="tag">Local</span></summary><p class="hint">Models are auto-detected, including subfolders; renamed compatible weights can be selected manually. Settings are stored in this browser.</p><div id="reconstruction-model-fields" class="model-fields"></div><div class="compact-actions"><button id="reconstruction-model-refresh">Refresh list</button><button id="reconstruction-model-save" class="primary" disabled>Save selection</button></div><p id="reconstruction-model-state" class="hint" role="status">Expand to read the local model list.</p></details>
+    <details class="panel-block" id="scene-panel"><summary>Scene &amp; framing</summary><div id="scene-sliders"></div><p id="calibration-hint" class="hint">Load a 3D subject to adjust scene and framing.</p><button id="reset-camera"><img src="../icons/refresh.svg" alt="">Reset camera</button></details>
+  </aside>
+  <section class="center-panel">
+    <div class="canvas-viewbar"><span id="view-detail">3D workbench</span><div class="view-switch" role="group" aria-label="View"><button id="view-output">Guide preview</button><button id="view-scene" class="active">3D workbench</button></div><select id="ratio" aria-label="Output aspect ratio"><option value="1:1">1:1</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="4:3">4:3</option><option id="ratio-model" value="model">Fit to model</option><option id="ratio-auto" value="auto">Auto fit</option><option value="custom">Custom</option></select></div>
+    <div class="stage" id="stage">
+      <canvas id="viewport" aria-label="Interactive 3D scene: drag to orbit the camera, middle button or Shift-drag to pan, scroll to zoom" tabindex="0"></canvas>
+      <div class="stage-toolbar"><div class="mode-switch" role="group" aria-label="Edit mode"><button id="camera-mode" class="active"><img src="../icons/camera.svg" alt="">Shot camera</button><button id="edit-mode"><img src="../icons/cube.svg" alt="">Edit scene</button></div><button id="reference-overlay-toggle" class="overlay-toggle" title="Overlay the source image for alignment">Overlay source</button></div>
+      <img id="reference-overlay" class="reference-overlay" alt="Semi-transparent source image overlay" hidden>
+      <p id="mode-hint" class="mode-hint" hidden>Reconstructed subject is static · only the camera can be adjusted</p>
+      <div class="stage-meta"><span id="source-badge">Loading scene</span></div>
+      <button id="use-view" class="use-view" hidden><img src="../icons/focus-2.svg" alt="">Use current view as shot camera</button>
+      <button id="fit-frame" class="fit-frame" title="Fit the whole asset into the frame"><img src="../icons/focus-2.svg" alt="">Fit to frame</button>
+      <div id="empty-scene" class="empty-scene" hidden><img src="../icons/aperture.svg" alt=""><strong>Turn your image into a 3D scene</strong><span>Connect or upload a source image<br>Reconstruct the subject, then drag the camera to explore new angles</span></div>
+      <div id="stage-guide-view" class="stage-guide-view" hidden><div class="guide-result-meta"><strong id="stage-guide-title">Guide image</strong><span id="stage-guide-detail">Actual output · image_2</span></div><img id="stage-guide" alt="Full output preview of the current guide image" hidden><div id="stage-guide-empty" class="guide-preview-empty"><strong id="stage-guide-message">Generate a guide image first</strong><span>Reconstruct or load a 3D subject</span></div></div>
+      <div id="loading" class="loading" role="status"><img src="../icons/aperture.svg" alt=""><strong id="loading-text">Preparing 3D workbench</strong><span id="loading-detail">Loading local rendering assets</span></div>
+    </div>
+    <div class="stage-help" id="stage-help">Drag to adjust the shot camera <span>Middle button or Shift to pan · scroll to zoom</span></div>
+    <section class="shot-shelf" id="shot-shelf"><div class="section-heading"><h2>Saved shots <small id="shot-count">0</small></h2><div class="compact-actions"><button id="open-batch">Batch shots</button><button id="save-shot"><img src="../icons/plus.svg" alt="">Save current shot</button></div></div><div id="shots" class="shots"><p class="empty-note">Keep the camera angles you like here. Switching between saved shots only changes the camera.</p></div></section>
+  </section>
+  <aside class="right-panel">
+    <section class="guide-mode-section">
+      <div class="section-heading"><h2>Guide strategy</h2><span id="model-badge">ANYANGLE</span></div>
+      <div class="model-switch" role="group" aria-label="Generation model"><button id="model-anyangle" class="active">AnyAngle LoRA</button><button id="model-base">Qwen base model</button></div>
+    </section>
+    <div class="section-heading" id="camera-heading"><h1>Shot camera</h1><img class="heading-icon" src="../icons/camera.svg" alt=""></div>
+    <div id="camera-sliders"></div>
+    <section class="view-presets" id="view-presets"><h2>View presets</h2><div class="three-buttons"><button data-angle="0">Front</button><button data-angle="90">Side</button><button data-angle="180">Back</button></div></section>
+    <section class="output-section"><h2>Output size</h2><div class="dimensions"><label>Width<input id="width" type="number" min="64" max="4096" step="32" value="1024"></label><label>Height<input id="height" type="number" min="64" max="4096" step="32" value="1024"></label></div><label class="background-label">Coarse render background<input type="color" id="background" value="#69717b" aria-label="Coarse render background color"></label></section>
+    <section class="guide-section"><div class="section-heading"><h2 id="guide-heading">Coarse 3D render <small>· image_2</small></h2><span id="guide-size">1024 × 1024</span></div><div class="guide-wrap"><img id="guide" alt="Guide image that will be output to image_2"></div><p id="guide-state" class="hint">Only the scene content is output; grid and gizmos are not part of the coarse render.</p><button id="download-guide"><img src="../icons/download.svg" alt="">Export current guide PNG</button></section>
+    <details class="protocol" open><summary>Wiring &amp; prompt</summary><p>Source image → image_1<br>Current guide image → image_2<br><span id="lora-hint">LoRA strength → AnyAngle model loader</span></p><code id="prompt-preview">Change the camera angle from &lt;image2&gt; to &lt;image1&gt;.</code><p class="hint" id="protocol-hint">In AnyAngle mode, wire the LoRA strength to the loader; base-model mode outputs 0 automatically.</p></details>
+  </aside>
+</main>
+<footer><div id="status" role="status">Preparing</div><span>IMAGE <b>·</b> PROMPT <b>·</b> SCENE JSON <b>·</b> LORA 0/1</span></footer>
+<div id="toast" role="status" hidden></div>
+<dialog id="batch-dialog" class="batch-dialog" aria-labelledby="batch-title"><h2 id="batch-title">Batch shots <span class="tag">MULTI-VIEW</span></h2><div id="batch-options"><label>Shot source<select id="batch-mode"><option value="range">Angle steps</option><option value="saved">Saved shots</option></select></label><div id="batch-range" class="batch-range"><label>Start angle<input id="batch-start" type="number" step="any" value="0"></label><label>End angle<input id="batch-end" type="number" step="any" value="330"></label><label>Step<input id="batch-step" type="number" step="any" value="30"></label></div><p id="batch-count" class="hint"></p><div class="compact-actions"><button id="batch-guides">Batch render coarse guides</button><button id="batch-final" class="primary">Batch generate final images</button></div></div><p class="hint">0° → 360° with a 1° step yields 360 shots. Final images reuse the current workflow's seed and sampler settings and are queued in ComfyUI one by one; connect a Save Image node to keep the results. Generating final images requires opening the workbench from the node.</p><div id="batch-state" class="batch-state" role="status">Choose the shot range, then start the batch.</div><p class="hint">Stopping only cancels further submissions; already queued jobs keep running.</p><div class="compact-actions"><button id="batch-stop" disabled>Stop remaining shots</button><button id="batch-zip" disabled>Download guides ZIP</button><button id="batch-manifest" disabled>Download job manifest</button><button id="batch-close">Close</button></div></dialog>
+<dialog id="name-dialog"><form method="dialog"><h2 id="name-title">Name</h2><input id="name-input" maxlength="48" required autocomplete="off"><div><button value="cancel" formnovalidate>Cancel</button><button value="ok" class="primary">Save</button></div></form></dialog>
+<input type="file" id="reference-file" accept="image/*" hidden><input type="file" id="glb-file" accept=".glb" hidden>
+<script type="module" src="./app.mjs?v=20261004g7"></script>
+</body></html>

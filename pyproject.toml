@@ -1,0 +1,16 @@
+[project]
+name = "qwen-image-21-multiangle-iv"
+version = "1.1.0+iv.1"
+description = "Trimmed English fork of Comfyui-Qwen-Image-2.1-MultiAngle-T8: interactive 3D camera studio for Qwen Image 2.1 with TripoSplat reconstruction."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = []
+classifiers = ["Operating System :: OS Independent"]
+
+[project.urls]
+Upstream = "https://github.com/T8mars/Comfyui-Qwen-Image-2.1-MultiAngle-T8"
+
+[tool.comfy]
+DisplayName = "Comfyui-Qwen-Image-2.1-MultiAngle-IV"
+requires-comfyui = ">=0.36.0"
